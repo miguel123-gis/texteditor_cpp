@@ -1,4 +1,4 @@
-#include <FL/FL_Text_Buffer.H>
+#include <FL/Fl_Text_Buffer.H>
 
 namespace Globals 
 {
