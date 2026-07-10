@@ -5,6 +5,11 @@
 #include <FL/Fl_Double_Window.H>
 
 
+// Forward declarations
+void menu_quit_callback(Fl_Widget*, void*);
+void update_title();
+
+// Global variables
 namespace Ted {
     Fl_Double_Window* app_window = NULL;
     Fl_Menu_Bar* app_menu_bar = NULL;
@@ -65,10 +70,20 @@ void update_title() {
     }
 }
 
-void menu_quit_callback(Fl_Widget*, void*) { /* TODO */ }
+void menu_quit_callback(Fl_Widget*, void*) {
+    // Fl::hide_all_windows();
+    if (Ted::text_changed) {
+        int c = fl_choice("Changes in your text have not ben saved.\n"
+                          "Do you want to quit the editor anyway?",
+                          "Quit", "Cancel", NULL);
+        if (c == 1) return;
+    }
+    Fl::hide_all_windows();
+}
 
 int main(int argc, char **argv) {
     build_app_window();
+    build_app_menu_bar();
     Ted::app_window->show(argc, argv);
     return Fl::run();
 }
