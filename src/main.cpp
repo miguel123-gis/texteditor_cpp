@@ -5,6 +5,9 @@
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Text_Buffer.H>
 #include <FL/Fl_Text_Editor.H>
+#include <FL/Fl_Native_File_Chooser.H>
+#include <FL/platform.H>
+#include <errno.h>
 
 
 // FORWARD DECLARATIONS
@@ -100,6 +103,45 @@ void update_title() {
         Ted::app_window->copy_label(buf);
     } else {
         Ted::app_window->label("FLTK Editor");
+    }
+}
+
+void add_file_support() {
+    int ix = Ted::app_menu_bar->find_index(menu_quit_callback); // Finds the "File" button
+    Ted::app_menu_bar->insert( // Insert before ix
+        ix, 
+        "Open",
+        FL_COMMAND+'o',
+        menu_open_callback,
+        NULL,
+        FL_MENU_DIVIDER
+    );
+    Ted::app_menu_bar->insert(ix+1, "Save", FL_COMMAND+'s', menu_save_callback); // Insert after ix
+}
+
+void menu_save_as_callback(Fl_Widget*, void*) {
+    Fl_Native_File_Chooser file_chooser;
+    file_chooser.title("Save File As...");
+    file_chooser.type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);
+
+    // If file is already saved then file_chooser will assume 
+    // the file to be saved will have the same extension
+    if (Ted::app_filename[0]) { // File is already saved
+        char temp_filename[FL_PATH_MAX];
+        fl_strlcpy(temp_filename, Ted::app_filename, FL_PATH_MAX); // Copies the current filename to the blank temp_filename without overflowing
+        const char* name = fl_filename_name(temp_filename); // Gets filename after copy
+        if (name) { 
+            file_chooser.preset_file(name); // Auto-fill the fields
+            temp_filename[name - temp_filename] = 0; // Remove "somefile.txt" from "/home/jose/somefile.txt"
+            file_chooser.directory(temp_filename); // Go to that directory
+        }
+    }
+
+    // If file is NOT yet saved
+    if (file_chooser.show() == 0) { // 0 means user picked a file
+        Ted::app_text_buffer->savefile(file_chooser.filename()); // Write buffer to file
+        set_filename(file_chooser.filename());
+        set_changed(false); // Since file is now "brand new", there are no changes yet
     }
 }
 
