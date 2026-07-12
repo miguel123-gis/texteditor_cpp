@@ -16,10 +16,13 @@ void text_changed_callback(int, int n_inserted, int n_deleted, int, const char*,
 // GLOBAL VARIABLES
 namespace Ted {
     Fl_Double_Window* app_window = NULL;
+
     Fl_Menu_Bar* app_menu_bar = NULL;
+
     Fl_Text_Editor* app_editor = NULL;
     Fl_Text_Editor* app_split_editor = NULL;
     Fl_Text_Buffer* app_text_buffer = NULL;
+    
     bool text_changed = false;
     char app_filename[FL_PATH_MAX] = "";
 }
@@ -47,7 +50,7 @@ void build_main_editor() {
     Ted::app_text_buffer = new Fl_Text_Buffer();
     Ted::app_text_buffer->add_modify_callback(text_changed_callback, NULL);
     Ted::app_editor = new Fl_Text_Editor(
-        0, 
+        0,
         Ted::app_menu_bar->h(),
         Ted::app_window->w(),
         Ted::app_window->h() - Ted::app_menu_bar->h()
@@ -125,6 +128,7 @@ void menu_quit_callback(Fl_Widget*, void*) {
 int main(int argc, char **argv) {
     build_app_window();
     build_app_menu_bar();
+    build_main_editor();
     Ted::app_window->show(argc, argv);
     return Fl::run();
 }
