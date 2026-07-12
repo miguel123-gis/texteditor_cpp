@@ -8,9 +8,10 @@
 
 
 // FORWARD DECLARATIONS
+void menu_new_callback(Fl_Widget*, void*);
 void menu_quit_callback(Fl_Widget*, void*);
 void update_title();
-void text_changed_callback();
+void text_changed_callback(int, int n_inserted, int n_deleted, int, const char*, void*);
 
 // GLOBAL VARIABLES
 namespace Ted {
@@ -31,8 +32,13 @@ void build_app_window() {
 void build_app_menu_bar() {
     Ted::app_window->begin();
     Ted::app_menu_bar = new Fl_Menu_Bar(0, 0, Ted::app_window->w(), 25);
-    Ted::app_menu_bar->add("File/Quit Editor", FL_COMMAND+'q', menu_quit_callback);
-    Ted::app_window->callback(menu_quit_callback);
+
+    Ted::app_menu_bar->add("File/Quit Editor", FL_COMMAND+'q', menu_quit_callback); // Add File>Quit button
+    Ted::app_window->callback(menu_quit_callback); // Inherited from Fl_Widget
+
+    int ix = Ted::app_menu_bar->find_index(menu_quit_callback); // Get position of the File>Quit menu
+    Ted::app_menu_bar->insert(ix, "New", FL_COMMAND+'n', menu_new_callback); // Insert button for New
+
     Ted::app_window->end();
 }
 
@@ -100,11 +106,16 @@ void text_changed_callback(int, int n_inserted, int n_deleted, int, const char*,
     }
 }
 
+void menu_new_callback(Fl_Widget*, void*) {
+    Ted::app_text_buffer->text("");
+    set_changed(false);
+}   
+
 void menu_quit_callback(Fl_Widget*, void*) {
     // Fl::hide_all_windows();
     if (Ted::text_changed) {
         int c = fl_choice("Changes in your text have not ben saved.\n"
-                          "Do you want to quit the editor anyway?",
+                          "Do you want to : the editor anyway?",
                           "Quit", "Cancel", NULL);
         if (c == 1) return;
     }
