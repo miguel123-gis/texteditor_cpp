@@ -119,6 +119,15 @@ void add_file_support() {
     Ted::app_menu_bar->insert(ix+1, "Save", FL_COMMAND+'s', menu_save_callback); // Insert after ix
 }
 
+void menu_save_callback(Fl_Widget*, void*) {
+    if (!Ted::app_filename[0]) { // There's already a filename
+        menu_save_as_callback(NULL, NULL);
+    } else {
+        Ted::app_text_buffer->savefile(file_chooser.filename());
+        set_changed(false); // 
+    }
+}
+
 void menu_save_as_callback(Fl_Widget*, void*) {
     Fl_Native_File_Chooser file_chooser;
     file_chooser.title("Save File As...");
@@ -137,7 +146,7 @@ void menu_save_as_callback(Fl_Widget*, void*) {
         }
     }
 
-    // If file is NOT yet saved
+    // If user already picked a file
     if (file_chooser.show() == 0) { // 0 means user picked a file
         Ted::app_text_buffer->savefile(file_chooser.filename()); // Write buffer to file
         set_filename(file_chooser.filename());
