@@ -13,6 +13,10 @@
 // FORWARD DECLARATIONS
 void menu_new_callback(Fl_Widget*, void*);
 void menu_quit_callback(Fl_Widget*, void*);
+void menu_open_callback(Fl_Widget*, void*);
+void menu_save_callback(Fl_Widget*, void*);
+void menu_save_as_callback(Fl_Widget*, void*);
+void load(const char* filename);
 void update_title();
 void text_changed_callback(int, int n_inserted, int n_deleted, int, const char*, void*);
 
@@ -25,6 +29,8 @@ namespace Ted {
     Fl_Text_Editor* app_editor = NULL;
     Fl_Text_Editor* app_split_editor = NULL;
     Fl_Text_Buffer* app_text_buffer = NULL;
+
+    Fl_Native_File_Chooser* file_chooser = NULL;
     
     bool text_changed = false;
     char app_filename[FL_PATH_MAX] = "";
@@ -123,7 +129,7 @@ void menu_save_callback(Fl_Widget*, void*) {
     if (!Ted::app_filename[0]) { // There's already a filename
         menu_save_as_callback(NULL, NULL);
     } else {
-        Ted::app_text_buffer->savefile(file_chooser.filename());
+        Ted::app_text_buffer->savefile(Ted::file_chooser->filename());
         set_changed(false); // 
     }
 }
@@ -168,18 +174,70 @@ void menu_new_callback(Fl_Widget*, void*) {
 void menu_quit_callback(Fl_Widget*, void*) {
     // Fl::hide_all_windows();
     if (Ted::text_changed) {
-        int c = fl_choice("Changes in your text have not ben saved.\n"
-                          "Do you want to : the editor anyway?",
-                          "Quit", "Cancel", NULL);
-        if (c == 1) return;
+        int r = fl_choice("The current file has not been saved.\n"
+                          "Would you like to save it now?",
+                          "Cancel", "Save", "Don't Save");
+        if (r == 0) { // Cancelled
+            return;
+        } else if (r == 1) { // Save
+            menu_save_callback(NULL, NULL);
+            return;
+        } 
     }
     Fl::hide_all_windows();
+}
+
+void menu_open_callback(Fl_Widget*, void*) {
+    // Fl::hide_all_windows();
+    if (Ted::text_changed) {
+        int r = fl_choice("The current file has not been saved.\n"
+                          "Would you like to save it now?",
+                          "Cancel", "Save", "Don't Save");
+        if (r == 2) { // User chose to not save
+            return;
+        }  
+        if (r == 1) { // Save
+            menu_save_callback(NULL, NULL);
+        } 
+    }
+
+    // If user did not cancel operation above
+    Ted::file_chooser->title("Open File...");
+    Ted::file_chooser->type(Fl_Native_File_Chooser::BROWSE_FILE);
+    Fl::hide_all_windows();
+
+    // If file is already saved, fill out the destination folder and file extension
+    if (Ted::app_filename[0]) {
+        char temp_filename[FL_PATH_MAX];
+        fl_strlcpy(temp_filename, Ted::app_filename, FL_PATH_MAX);
+        const char* name = fl_filename_name(temp_filename);
+        if (name) {
+            Ted::file_chooser->preset_file(name);
+            temp_filename[name - temp_filename] = 0;
+            Ted::file_chooser->directory(temp_filename);
+        }
+    }
+
+    // If file chooser window is closed, do nothing and keep current file
+    if (Ted::file_chooser->show() == 0) {
+        load(Ted::file_chooser->filename());
+    }
+}
+
+void load(const char* filename) {
+    if (Ted::app_text_buffer->loadfile(filename)==0) {
+        set_filename(filename);
+        set_changed(false);
+    } else {
+        fl_alert("Failed to load file\n%s\n%s", filename, strerror(errno));
+    }
 }
 
 int main(int argc, char **argv) {
     build_app_window();
     build_app_menu_bar();
     build_main_editor();
+    add_file_support();
     Ted::app_window->show(argc, argv);
     return Fl::run();
 }
