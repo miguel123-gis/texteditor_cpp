@@ -30,7 +30,7 @@ namespace Ted {
     Fl_Text_Editor* app_split_editor = NULL;
     Fl_Text_Buffer* app_text_buffer = NULL;
 
-    Fl_Native_File_Chooser* file_chooser = NULL;
+    Fl_Native_File_Chooser* file_chooser = new Fl_Native_File_Chooser();
     
     bool text_changed = false;
     char app_filename[FL_PATH_MAX] = "";
@@ -204,7 +204,7 @@ void menu_open_callback(Fl_Widget*, void*) {
     // If user did not cancel operation above
     Ted::file_chooser->title("Open File...");
     Ted::file_chooser->type(Fl_Native_File_Chooser::BROWSE_FILE);
-    Fl::hide_all_windows();
+    // Fl::hide_all_windows(); // TODO Verify if this is needed - currently disabled since if you load a file via Open, it will close all windows
 
     // If file is already saved, fill out the destination folder and file extension
     if (Ted::app_filename[0]) {
