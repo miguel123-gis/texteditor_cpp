@@ -129,7 +129,7 @@ void menu_save_callback(Fl_Widget*, void*) {
     if (!Ted::app_filename[0]) { // There's already a filename
         menu_save_as_callback(NULL, NULL);
     } else {
-        Ted::app_text_buffer->savefile(Ted::file_chooser->filename());
+        Ted::app_text_buffer->savefile(Ted::app_filename);
         set_changed(false); // 
     }
 }
