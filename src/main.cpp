@@ -36,7 +36,7 @@ namespace Ted {
     char app_filename[FL_PATH_MAX] = "";
 }
 
-// WINDOWS
+// WINDOWS, CALLERS
 void build_app_window() {
     Ted::app_window = new Fl_Double_Window(640, 480, "FLTK Editor");
 }
@@ -68,6 +68,19 @@ void build_main_editor() {
     Ted::app_editor->textfont(FL_COURIER);
     Ted::app_window->resizable(Ted::app_editor);
     Ted::app_window->end();
+}
+
+void add_file_support() {
+    int ix = Ted::app_menu_bar->find_index(menu_quit_callback); // Finds the "File" button
+    Ted::app_menu_bar->insert( // Insert before ix
+        ix, 
+        "Open",
+        FL_COMMAND+'o',
+        menu_open_callback,
+        NULL,
+        FL_MENU_DIVIDER
+    );
+    Ted::app_menu_bar->insert(ix+1, "Save", FL_COMMAND+'s', menu_save_callback); // Insert after ix
 }
 
 // OTHER FUNCTIONS
@@ -112,18 +125,7 @@ void update_title() {
     }
 }
 
-void add_file_support() {
-    int ix = Ted::app_menu_bar->find_index(menu_quit_callback); // Finds the "File" button
-    Ted::app_menu_bar->insert( // Insert before ix
-        ix, 
-        "Open",
-        FL_COMMAND+'o',
-        menu_open_callback,
-        NULL,
-        FL_MENU_DIVIDER
-    );
-    Ted::app_menu_bar->insert(ix+1, "Save", FL_COMMAND+'s', menu_save_callback); // Insert after ix
-}
+// CALLBACKS
 
 void menu_save_callback(Fl_Widget*, void*) {
     if (!Ted::app_filename[0]) { // There's already a filename
