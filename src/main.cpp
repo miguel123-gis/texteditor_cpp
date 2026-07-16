@@ -19,6 +19,7 @@ void menu_save_as_callback(Fl_Widget*, void*);
 void load(const char* filename);
 void update_title();
 void text_changed_callback(int, int n_inserted, int n_deleted, int, const char*, void*);
+int args_handler(int arc, char** argv, int& i);
 
 // GLOBAL VARIABLES
 namespace Ted {
@@ -81,6 +82,15 @@ void add_file_support() {
         FL_MENU_DIVIDER
     );
     Ted::app_menu_bar->insert(ix+1, "Save", FL_COMMAND+'s', menu_save_callback); // Insert after ix
+}
+
+int handle_commandline_and_run(int& argc, char** argv) {
+    int i = 0;
+    Fl::args_to_utf8(argc, argv);
+    Fl::args(argc, argv, i, args_handler);
+    fl_open_callback(load);
+    Ted::app_window->show(argc, argv);
+    return Fl::run();
 }
 
 // OTHER FUNCTIONS
@@ -235,11 +245,20 @@ void load(const char* filename) {
     }
 }
 
+// Allow CLI operations
+int args_handler(int arc, char** argv, int& i) {
+    if (argv && argv[i] && argv[i][0]!='-') {
+        load(argv[i]);
+        i++;
+        return 1;
+    }
+    return 0;
+};
+
 int main(int argc, char **argv) {
     build_app_window();
     build_app_menu_bar();
     build_main_editor();
     add_file_support();
-    Ted::app_window->show(argc, argv);
-    return Fl::run();
+    handle_commandline_and_run(argc, argv);
 }
