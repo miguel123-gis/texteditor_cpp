@@ -71,3 +71,8 @@ Testing/
 
 # Vscode
 .vscode/
+
+# Local dev
+test*
+*.plist
+main.yml
