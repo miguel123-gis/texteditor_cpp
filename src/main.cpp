@@ -246,10 +246,17 @@ void load(const char* filename) {
 }
 
 // Allow CLI operations
-int args_handler(int arc, char** argv, int& i) {
+int args_handler(int argc, char** argv, int& i) {
+    // argc - number of arguments passed to shell including "./main"
+    // argv - first * is the pointer to the char, second * is the pointer to that pointer
+    // i    - index of the current argument
+
+    // if argv (entire array) is not empty
+    // if current arg in argv is not empty
+    // if that arg's first is not a dash
     if (argv && argv[i] && argv[i][0]!='-') {
-        load(argv[i]);
-        i++;
+        load(argv[i]); // load that arg
+        i++; // move index
         return 1;
     }
     return 0;
