@@ -8,6 +8,7 @@
 #include <FL/Fl_Native_File_Chooser.H>
 #include <FL/platform.H>
 #include <errno.h>
+#include <iostream>
 
 
 // FORWARD DECLARATIONS
@@ -200,20 +201,23 @@ void menu_quit_callback(Fl_Widget*, void*) {
 }
 
 void menu_open_callback(Fl_Widget*, void*) {
-    // Fl::hide_all_windows();
+    // Text has been changed so ask if need to save changes first, ignore changes, or cancel open
     if (Ted::text_changed) {
-        int r = fl_choice("The current file has not been saved.\n"
-                          "Would you like to save it now?",
-                          "Cancel", "Save", "Don't Save");
-        if (r == 2) { // User chose to not save
+        int r = fl_choice("The current file has not been saved.\nWould you like to save it now?", // message
+                          "Cancel",         // button 0 - rightmost
+                          "Save",           // button 1 - middle
+                          "Don't Save");    // button 2 - leftmost
+        // if (r == 2) { // Based on the tutorial but this should be the block for cancel button
+        if (r == 0) { // User cancelled
             return;
         }  
-        if (r == 1) { // Save
+        if (r == 1) { // Saves the file first then opens the prompt
             menu_save_callback(NULL, NULL);
         } 
     }
 
-    // If user did not cancel operation above
+    // If text did not change or
+    // If user chose to not save changes
     Ted::file_chooser->title("Open File...");
     Ted::file_chooser->type(Fl_Native_File_Chooser::BROWSE_FILE);
     // Fl::hide_all_windows(); // TODO Verify if this is needed - currently disabled since if you load a file via Open, it will close all windows
