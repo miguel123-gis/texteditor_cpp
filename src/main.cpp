@@ -181,6 +181,10 @@ void text_changed_callback(int, int n_inserted, int n_deleted, int, const char*,
 
 void menu_new_callback(Fl_Widget*, void*) {
     Ted::app_text_buffer->text("");
+
+    if (Ted::app_filename[0]) {
+        Ted::app_filename[0] = '\0'; // Remove filename
+    }
     set_changed(false);
 }   
 
