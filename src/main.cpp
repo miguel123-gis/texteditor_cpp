@@ -182,8 +182,28 @@ void text_changed_callback(int, int n_inserted, int n_deleted, int, const char*,
 void menu_new_callback(Fl_Widget*, void*) {
     Ted::app_text_buffer->text("");
 
+    // If there is a file loaded, remove the filename
     if (Ted::app_filename[0]) {
-        Ted::app_filename[0] = '\0'; // Remove filename
+        Ted::app_filename[0] = '\0';
+    // If it's a new file
+    } else {
+        // There are changes so ask to save before creating new editor
+        if (Ted::text_changed) {
+            int r = fl_choice(
+                "The current file has not been saved.\n"
+                "Would you like to save it now?",
+                "Cancel", "Save", "Don't Save"
+            );
+
+            if (r == 0) { // Cancelled
+                return;
+            } else if (r == 1) { // Save
+                menu_save_callback(NULL, NULL);
+            }
+        // No changes
+        } else {
+            return;
+        }
     }
     set_changed(false);
 }   
